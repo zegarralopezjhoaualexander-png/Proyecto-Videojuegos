@@ -33,6 +33,16 @@
 
     <section id="juegos">
       <h2>Mis videojuegos</h2>
+
+      <div class="filtros">
+        <input type="search" id="buscador" placeholder="🔍 Buscar por nombre o plataforma">
+        <select id="filtroGenero">
+          <option value="">Todos los géneros</option>
+        </select>
+        <button type="button" id="btnLimpiar" class="cancelar">Limpiar</button>
+      </div>
+      <p id="contador"></p>
+
       <div class="tarjetas" id="listaJuegos"></div>
     </section>
   </main>

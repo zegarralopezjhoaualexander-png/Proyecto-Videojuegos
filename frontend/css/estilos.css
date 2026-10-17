@@ -31,7 +31,7 @@ form {
   margin-top: 1rem;
 }
 
-input {
+input, select {
   flex: 1;
   min-width: 180px;
   padding: 0.7rem;
@@ -55,6 +55,22 @@ button:hover { opacity: 0.85; }
 #mensaje.error { color: #ff6b6b; }
 #mensaje.ok { color: #6bff95; }
 
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.filtros input { flex: 2; }
+.filtros select { flex: 1; }
+
+#contador {
+  margin-top: 0.8rem;
+  color: #9a9ac0;
+  font-size: 0.9rem;
+}
+
 .tarjetas {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -69,6 +85,7 @@ button:hover { opacity: 0.85; }
   transition: transform 0.2s;
 }
 .tarjeta:hover { transform: translateY(-5px); }
+
 .acciones {
   display: flex;
   gap: 0.6rem;
@@ -88,4 +105,11 @@ button:hover { opacity: 0.85; }
 button.cancelar {
   background: #555577;
   color: #fff;
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  background: #1b1b2f;
+  margin-top: 2rem;
 }

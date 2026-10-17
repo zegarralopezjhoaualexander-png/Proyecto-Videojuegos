@@ -12,11 +12,25 @@ const btnGuardar = document.getElementById("btnGuardar");
 const btnCancelar = document.getElementById("btnCancelar");
 const tituloForm = document.getElementById("tituloForm");
 
+const buscador = document.getElementById("buscador");
+const filtroGenero = document.getElementById("filtroGenero");
+const btnLimpiar = document.getElementById("btnLimpiar");
+const contador = document.getElementById("contador");
+
 let editandoId = null;
+let todosLosJuegos = [];
 
 function mostrarMensaje(texto, tipo) {
   mensaje.textContent = texto;
   mensaje.className = tipo;
+}
+
+function normalizar(texto) {
+  return (texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
 function salirDeEdicion() {
@@ -48,52 +62,107 @@ function crearLinea(texto) {
   return linea;
 }
 
+function actualizarGeneros() {
+  const seleccionado = filtroGenero.value;
+  const generos = new Map();
+
+  todosLosJuegos.forEach(juego => {
+    const clave = normalizar(juego.genero);
+    if (clave && !generos.has(clave)) generos.set(clave, juego.genero);
+  });
+
+  filtroGenero.innerHTML = "";
+  filtroGenero.add(new Option("Todos los géneros", ""));
+
+  [...generos.entries()]
+    .sort((a, b) => a[1].localeCompare(b[1], "es"))
+    .forEach(([clave, nombre]) => filtroGenero.add(new Option(nombre, clave)));
+
+  filtroGenero.value = generos.has(seleccionado) ? seleccionado : "";
+}
+
+function mostrarJuegos() {
+  const texto = normalizar(buscador.value);
+  const genero = filtroGenero.value;
+
+  const filtrados = todosLosJuegos.filter(juego => {
+    const coincideTexto =
+      !texto ||
+      normalizar(juego.nombre).includes(texto) ||
+      normalizar(juego.plataforma).includes(texto);
+    const coincideGenero = !genero || normalizar(juego.genero) === genero;
+    return coincideTexto && coincideGenero;
+  });
+
+  lista.innerHTML = "";
+
+  if (todosLosJuegos.length === 0) {
+    contador.textContent = "";
+    lista.textContent = "Todavía no hay videojuegos. ¡Agrega el primero!";
+    return;
+  }
+
+  contador.textContent =
+    "Mostrando " + filtrados.length + " de " + todosLosJuegos.length + " videojuegos";
+
+  if (filtrados.length === 0) {
+    lista.textContent = "Ningún videojuego coincide con tu búsqueda.";
+    return;
+  }
+
+  filtrados.forEach(juego => {
+    const tarjeta = document.createElement("article");
+    tarjeta.className = "tarjeta";
+
+    const titulo = document.createElement("h3");
+    titulo.textContent = juego.nombre;
+    tarjeta.append(titulo, crearLinea("Género: " + juego.genero));
+
+    if (juego.plataforma) tarjeta.append(crearLinea("Plataforma: " + juego.plataforma));
+    if (juego.anio) tarjeta.append(crearLinea("Año: " + juego.anio));
+    if (juego.puntuacion) tarjeta.append(crearLinea("Puntuación: ⭐ " + juego.puntuacion + "/10"));
+
+    const acciones = document.createElement("div");
+    acciones.className = "acciones";
+
+    const botonEditar = document.createElement("button");
+    botonEditar.className = "editar";
+    botonEditar.textContent = "Editar";
+    botonEditar.addEventListener("click", () => iniciarEdicion(juego));
+
+    const botonEliminar = document.createElement("button");
+    botonEliminar.className = "eliminar";
+    botonEliminar.textContent = "Eliminar";
+    botonEliminar.addEventListener("click", () => eliminarJuego(juego.id));
+
+    acciones.append(botonEditar, botonEliminar);
+    tarjeta.append(acciones);
+    lista.appendChild(tarjeta);
+  });
+}
+
 async function cargarJuegos() {
   try {
     const respuesta = await fetch(API);
-    const juegos = await respuesta.json();
+    todosLosJuegos = await respuesta.json();
 
-    lista.innerHTML = "";
-
-    if (juegos.length === 0) {
-      lista.textContent = "Todavía no hay videojuegos. ¡Agrega el primero!";
-      return;
-    }
-
-    juegos.forEach(juego => {
-      const tarjeta = document.createElement("article");
-      tarjeta.className = "tarjeta";
-
-      const titulo = document.createElement("h3");
-      titulo.textContent = juego.nombre;
-      tarjeta.append(titulo, crearLinea("Género: " + juego.genero));
-
-      if (juego.plataforma) tarjeta.append(crearLinea("Plataforma: " + juego.plataforma));
-      if (juego.anio) tarjeta.append(crearLinea("Año: " + juego.anio));
-      if (juego.puntuacion) tarjeta.append(crearLinea("Puntuación: ⭐ " + juego.puntuacion + "/10"));
-
-      const acciones = document.createElement("div");
-      acciones.className = "acciones";
-
-      const botonEditar = document.createElement("button");
-      botonEditar.className = "editar";
-      botonEditar.textContent = "Editar";
-      botonEditar.addEventListener("click", () => iniciarEdicion(juego));
-
-      const botonEliminar = document.createElement("button");
-      botonEliminar.className = "eliminar";
-      botonEliminar.textContent = "Eliminar";
-      botonEliminar.addEventListener("click", () => eliminarJuego(juego.id));
-
-      acciones.append(botonEditar, botonEliminar);
-      tarjeta.append(acciones);
-      lista.appendChild(tarjeta);
-    });
+    actualizarGeneros();
+    mostrarJuegos();
   } catch (error) {
+    contador.textContent = "";
     lista.textContent = "No se pudo conectar con el backend. ¿Está corriendo?";
     console.error(error);
   }
 }
+
+buscador.addEventListener("input", mostrarJuegos);
+filtroGenero.addEventListener("change", mostrarJuegos);
+
+btnLimpiar.addEventListener("click", () => {
+  buscador.value = "";
+  filtroGenero.value = "";
+  mostrarJuegos();
+});
 
 formulario.addEventListener("submit", async (evento) => {
   evento.preventDefault();
