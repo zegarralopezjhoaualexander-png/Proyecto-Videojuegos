@@ -1,6 +1,6 @@
 # 🎮 Proyecto Videojuegos
 
-Aplicación web para administrar un catálogo de videojuegos. Permite **ver, agregar, editar y eliminar** juegos desde una página conectada a una API REST con base de datos.
+Aplicación web para administrar un catálogo de videojuegos. Permite **ver, agregar, editar y eliminar** juegos, con datos como género, plataforma, año y puntuación, desde una página conectada a una API REST con base de datos.
 
 ## Tecnologías
 
@@ -51,12 +51,6 @@ git clone https://github.com/zegarralopezjhoaualexander-png/Proyecto-Videojuegos
 3. Ejecuta la clase `BackendApplication`.
 4. La API queda disponible en `http://localhost:8080/api/juegos`.
 
-También se puede iniciar desde la terminal, dentro de la carpeta `backend`:
-
-```bash
-./mvnw spring-boot:run
-```
-
 ### 3. Abrir el frontend
 
 1. Abre la carpeta `frontend` en Visual Studio Code.
@@ -77,24 +71,37 @@ Ruta base: `http://localhost:8080/api/juegos`
 | PUT | `/api/juegos/{id}` | Edita un videojuego |
 | DELETE | `/api/juegos/{id}` | Elimina un videojuego |
 
+### Campos de un videojuego
+
+| Campo | Tipo | Obligatorio | Reglas |
+|---|---|---|---|
+| `nombre` | texto | Sí | Hasta 100 caracteres |
+| `genero` | texto | Sí | Hasta 50 caracteres |
+| `plataforma` | texto | No | Hasta 50 caracteres |
+| `anio` | número | No | Entre 1950 y 2100 |
+| `puntuacion` | número | No | Entre 1 y 10 |
+
 Ejemplo de cuerpo para `POST` y `PUT`:
 
 ```json
 {
   "nombre": "Minecraft",
-  "genero": "Sandbox"
+  "genero": "Sandbox",
+  "plataforma": "PC",
+  "anio": 2011,
+  "puntuacion": 9
 }
 ```
 
 ## Validaciones
 
-- `nombre` y `genero` son obligatorios y no pueden estar vacíos.
-- `nombre` admite hasta 100 caracteres y `genero` hasta 50.
-- Si los datos no son válidos, la API responde con código `400` y un mensaje, por ejemplo:
+Si los datos no son válidos, la API responde con código `400` y un mensaje claro, por ejemplo:
 
 ```json
-{ "mensaje": "El nombre es obligatorio" }
+{ "mensaje": "La puntuación máxima es 10" }
 ```
+
+La página muestra ese mensaje en rojo debajo del formulario.
 
 ## Base de datos
 
@@ -102,4 +109,4 @@ Los datos se guardan en un archivo de H2 dentro de `backend/data/`, así que no 
 
 ## Autor
 
-Tu Nombre
+Jhoau
