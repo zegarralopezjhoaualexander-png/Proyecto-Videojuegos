@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecto Videojuegos</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header>
+    <h1>🎮 Proyecto Videojuegos</h1>
+    <nav>
+      <a href="#agregar">Agregar</a>
+      <a href="#juegos">Juegos</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="agregar">
+      <h2>Agregar videojuego</h2>
+      <form id="formJuego">
+        <input type="text" id="nombre" placeholder="Nombre del juego" required>
+        <input type="text" id="genero" placeholder="Género" required>
+        <button type="submit">Agregar</button>
+      </form>
+      <p id="mensaje"></p>
+    </section>
+
+    <section id="juegos">
+      <h2>Mis videojuegos</h2>
+      <div class="tarjetas" id="listaJuegos"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Proyecto Videojuegos</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
