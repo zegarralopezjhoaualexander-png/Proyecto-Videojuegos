@@ -100,13 +100,21 @@ formulario.addEventListener("submit", async (evento) => {
       body: JSON.stringify(datos)
     });
 
-    if (!respuesta.ok) throw new Error("Error " + respuesta.status);
+    if (!respuesta.ok) {
+      let texto = "No se pudo guardar el videojuego.";
+      try {
+        const error = await respuesta.json();
+        if (error.mensaje) texto = error.mensaje;
+      } catch (e) {}
+      mostrarMensaje(texto, "error");
+      return;
+    }
 
     salirDeEdicion();
     mostrarMensaje(editando ? "Videojuego actualizado ✏️" : "Videojuego agregado ✅", "ok");
     cargarJuegos();
   } catch (error) {
-    mostrarMensaje("No se pudo guardar el videojuego.", "error");
+    mostrarMensaje("No se pudo conectar con el backend.", "error");
     console.error(error);
   }
 });
