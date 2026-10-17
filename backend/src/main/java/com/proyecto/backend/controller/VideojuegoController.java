@@ -2,6 +2,8 @@ package com.proyecto.backend.controller;
 
 import com.proyecto.backend.model.Videojuego;
 import com.proyecto.backend.service.VideojuegoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,5 +22,31 @@ public class VideojuegoController {
     @GetMapping
     public List<Videojuego> listar() {
         return servicio.obtenerTodos();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Videojuego> obtener(@PathVariable int id) {
+        return servicio.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Videojuego> crear(@RequestBody Videojuego datos) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(servicio.crear(datos));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Videojuego> actualizar(@PathVariable int id, @RequestBody Videojuego datos) {
+        return servicio.actualizar(id, datos)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable int id) {
+        return servicio.eliminar(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }
