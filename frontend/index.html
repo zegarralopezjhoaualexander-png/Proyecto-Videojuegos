@@ -8,8 +8,8 @@
 </head>
 <body>
 
-  <header>
-    <h1>🎮 Proyecto Videojuegos</h1>
+  <header class="cabecera">
+    <a href="#inicio" class="logo">🎮 <span>Proyecto Videojuegos</span></a>
     <nav>
       <a href="#agregar">Agregar</a>
       <a href="#juegos">Juegos</a>
@@ -17,26 +17,50 @@
   </header>
 
   <main>
-    <section id="agregar">
-      <h2 id="tituloForm">Agregar videojuego</h2>
-      <form id="formJuego">
-        <input type="text" id="nombre" placeholder="Nombre del juego" required>
-        <input type="text" id="genero" placeholder="Género" required>
-        <input type="text" id="plataforma" placeholder="Plataforma (opcional)">
-        <input type="number" id="anio" placeholder="Año (opcional)" min="1950" max="2100">
-        <input type="number" id="puntuacion" placeholder="Puntuación 1-10 (opcional)" min="1" max="10">
-        <button type="submit" id="btnGuardar">Agregar</button>
-        <button type="button" id="btnCancelar" class="cancelar" hidden>Cancelar</button>
-      </form>
-      <p id="mensaje"></p>
+    <section class="portada" id="inicio">
+      <h2>Tu colección de <span class="resalte">videojuegos</span></h2>
+      <p>Agrega, busca y organiza todos tus juegos en un solo lugar.</p>
+
+      <div class="estadisticas">
+        <div class="estadistica">
+          <strong id="statTotal">0</strong>
+          <span>Juegos</span>
+        </div>
+        <div class="estadistica">
+          <strong id="statGeneros">0</strong>
+          <span>Géneros</span>
+        </div>
+        <div class="estadistica">
+          <strong id="statPromedio">—</strong>
+          <span>Puntuación media</span>
+        </div>
+      </div>
     </section>
 
-    <section id="juegos">
-      <h2>Mis videojuegos</h2>
+    <section id="agregar" class="seccion">
+      <div class="panel" id="panelFormulario">
+        <h2 id="tituloForm">Agregar videojuego</h2>
+        <form id="formJuego">
+          <input type="text" id="nombre" placeholder="Nombre del juego" aria-label="Nombre del juego" required>
+          <input type="text" id="genero" placeholder="Género" aria-label="Género" required>
+          <input type="text" id="plataforma" placeholder="Plataforma (opcional)" aria-label="Plataforma">
+          <input type="number" id="anio" placeholder="Año (opcional)" aria-label="Año" min="1950" max="2100">
+          <input type="number" id="puntuacion" placeholder="Puntuación 1-10 (opcional)" aria-label="Puntuación" min="1" max="10">
+          <div class="botones-form">
+            <button type="submit" id="btnGuardar" class="primario">Agregar</button>
+            <button type="button" id="btnCancelar" class="cancelar" hidden>Cancelar</button>
+          </div>
+        </form>
+        <p id="mensaje"></p>
+      </div>
+    </section>
+
+    <section id="juegos" class="seccion">
+      <h2 class="titulo-seccion">Mis videojuegos</h2>
 
       <div class="filtros">
-        <input type="search" id="buscador" placeholder="🔍 Buscar por nombre o plataforma">
-        <select id="filtroGenero">
+        <input type="search" id="buscador" placeholder="🔍 Buscar por nombre o plataforma" aria-label="Buscar">
+        <select id="filtroGenero" aria-label="Filtrar por género">
           <option value="">Todos los géneros</option>
         </select>
         <button type="button" id="btnLimpiar" class="cancelar">Limpiar</button>

@@ -3,6 +3,7 @@ const API = "http://localhost:8080/api/juegos";
 const lista = document.getElementById("listaJuegos");
 const formulario = document.getElementById("formJuego");
 const mensaje = document.getElementById("mensaje");
+const panelFormulario = document.getElementById("panelFormulario");
 const inputNombre = document.getElementById("nombre");
 const inputGenero = document.getElementById("genero");
 const inputPlataforma = document.getElementById("plataforma");
@@ -16,6 +17,10 @@ const buscador = document.getElementById("buscador");
 const filtroGenero = document.getElementById("filtroGenero");
 const btnLimpiar = document.getElementById("btnLimpiar");
 const contador = document.getElementById("contador");
+
+const statTotal = document.getElementById("statTotal");
+const statGeneros = document.getElementById("statGeneros");
+const statPromedio = document.getElementById("statPromedio");
 
 let editandoId = null;
 let todosLosJuegos = [];
@@ -39,6 +44,7 @@ function salirDeEdicion() {
   btnGuardar.textContent = "Agregar";
   tituloForm.textContent = "Agregar videojuego";
   btnCancelar.hidden = true;
+  panelFormulario.classList.remove("editando");
 }
 
 function iniciarEdicion(juego) {
@@ -51,15 +57,27 @@ function iniciarEdicion(juego) {
   btnGuardar.textContent = "Guardar cambios";
   tituloForm.textContent = "Editar videojuego";
   btnCancelar.hidden = false;
+  panelFormulario.classList.add("editando");
   mostrarMensaje("", "");
   document.getElementById("agregar").scrollIntoView({ behavior: "smooth" });
   inputNombre.focus();
 }
 
-function crearLinea(texto) {
-  const linea = document.createElement("p");
-  linea.textContent = texto;
-  return linea;
+function actualizarEstadisticas() {
+  statTotal.textContent = todosLosJuegos.length;
+
+  const generos = new Set(
+    todosLosJuegos.map(j => normalizar(j.genero)).filter(Boolean)
+  );
+  statGeneros.textContent = generos.size;
+
+  const notas = todosLosJuegos
+    .map(j => j.puntuacion)
+    .filter(n => typeof n === "number");
+
+  statPromedio.textContent = notas.length
+    ? (notas.reduce((suma, n) => suma + n, 0) / notas.length).toFixed(1)
+    : "—";
 }
 
 function actualizarGeneros() {
@@ -81,6 +99,77 @@ function actualizarGeneros() {
   filtroGenero.value = generos.has(seleccionado) ? seleccionado : "";
 }
 
+function crearChip(texto) {
+  const chip = document.createElement("span");
+  chip.className = "chip";
+  chip.textContent = texto;
+  return chip;
+}
+
+function crearTarjeta(juego) {
+  const tarjeta = document.createElement("article");
+  tarjeta.className = "tarjeta";
+
+  const encabezado = document.createElement("div");
+  encabezado.className = "cabecera-tarjeta";
+
+  const textos = document.createElement("div");
+
+  const titulo = document.createElement("h3");
+  titulo.textContent = juego.nombre;
+
+  const etiqueta = document.createElement("span");
+  etiqueta.className = "etiqueta";
+  etiqueta.textContent = juego.genero;
+
+  textos.append(titulo);
+  encabezado.append(textos);
+
+  if (typeof juego.puntuacion === "number") {
+    const nota = document.createElement("div");
+    const nivel = juego.puntuacion >= 8 ? "alta" : juego.puntuacion >= 5 ? "media" : "baja";
+    nota.className = "nota " + nivel;
+    nota.textContent = juego.puntuacion;
+    nota.title = "Puntuación: " + juego.puntuacion + "/10";
+    encabezado.append(nota);
+  }
+
+  tarjeta.append(encabezado, etiqueta);
+
+  if (juego.plataforma || juego.anio) {
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    if (juego.plataforma) chips.append(crearChip("🕹️ " + juego.plataforma));
+    if (juego.anio) chips.append(crearChip("📅 " + juego.anio));
+    tarjeta.append(chips);
+  }
+
+  const acciones = document.createElement("div");
+  acciones.className = "acciones";
+
+  const botonEditar = document.createElement("button");
+  botonEditar.className = "editar";
+  botonEditar.textContent = "Editar";
+  botonEditar.addEventListener("click", () => iniciarEdicion(juego));
+
+  const botonEliminar = document.createElement("button");
+  botonEliminar.className = "eliminar";
+  botonEliminar.textContent = "Eliminar";
+  botonEliminar.addEventListener("click", () => eliminarJuego(juego.id));
+
+  acciones.append(botonEditar, botonEliminar);
+  tarjeta.append(acciones);
+
+  return tarjeta;
+}
+
+function mostrarVacio(texto) {
+  const aviso = document.createElement("p");
+  aviso.className = "vacio";
+  aviso.textContent = texto;
+  lista.appendChild(aviso);
+}
+
 function mostrarJuegos() {
   const texto = normalizar(buscador.value);
   const genero = filtroGenero.value;
@@ -98,7 +187,7 @@ function mostrarJuegos() {
 
   if (todosLosJuegos.length === 0) {
     contador.textContent = "";
-    lista.textContent = "Todavía no hay videojuegos. ¡Agrega el primero!";
+    mostrarVacio("Todavía no hay videojuegos. ¡Agrega el primero!");
     return;
   }
 
@@ -106,39 +195,11 @@ function mostrarJuegos() {
     "Mostrando " + filtrados.length + " de " + todosLosJuegos.length + " videojuegos";
 
   if (filtrados.length === 0) {
-    lista.textContent = "Ningún videojuego coincide con tu búsqueda.";
+    mostrarVacio("Ningún videojuego coincide con tu búsqueda.");
     return;
   }
 
-  filtrados.forEach(juego => {
-    const tarjeta = document.createElement("article");
-    tarjeta.className = "tarjeta";
-
-    const titulo = document.createElement("h3");
-    titulo.textContent = juego.nombre;
-    tarjeta.append(titulo, crearLinea("Género: " + juego.genero));
-
-    if (juego.plataforma) tarjeta.append(crearLinea("Plataforma: " + juego.plataforma));
-    if (juego.anio) tarjeta.append(crearLinea("Año: " + juego.anio));
-    if (juego.puntuacion) tarjeta.append(crearLinea("Puntuación: ⭐ " + juego.puntuacion + "/10"));
-
-    const acciones = document.createElement("div");
-    acciones.className = "acciones";
-
-    const botonEditar = document.createElement("button");
-    botonEditar.className = "editar";
-    botonEditar.textContent = "Editar";
-    botonEditar.addEventListener("click", () => iniciarEdicion(juego));
-
-    const botonEliminar = document.createElement("button");
-    botonEliminar.className = "eliminar";
-    botonEliminar.textContent = "Eliminar";
-    botonEliminar.addEventListener("click", () => eliminarJuego(juego.id));
-
-    acciones.append(botonEditar, botonEliminar);
-    tarjeta.append(acciones);
-    lista.appendChild(tarjeta);
-  });
+  filtrados.forEach(juego => lista.appendChild(crearTarjeta(juego)));
 }
 
 async function cargarJuegos() {
@@ -146,11 +207,13 @@ async function cargarJuegos() {
     const respuesta = await fetch(API);
     todosLosJuegos = await respuesta.json();
 
+    actualizarEstadisticas();
     actualizarGeneros();
     mostrarJuegos();
   } catch (error) {
     contador.textContent = "";
-    lista.textContent = "No se pudo conectar con el backend. ¿Está corriendo?";
+    lista.innerHTML = "";
+    mostrarVacio("No se pudo conectar con el backend. ¿Está corriendo?");
     console.error(error);
   }
 }
