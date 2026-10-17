@@ -5,6 +5,9 @@ const formulario = document.getElementById("formJuego");
 const mensaje = document.getElementById("mensaje");
 const inputNombre = document.getElementById("nombre");
 const inputGenero = document.getElementById("genero");
+const inputPlataforma = document.getElementById("plataforma");
+const inputAnio = document.getElementById("anio");
+const inputPuntuacion = document.getElementById("puntuacion");
 const btnGuardar = document.getElementById("btnGuardar");
 const btnCancelar = document.getElementById("btnCancelar");
 const tituloForm = document.getElementById("tituloForm");
@@ -28,12 +31,21 @@ function iniciarEdicion(juego) {
   editandoId = juego.id;
   inputNombre.value = juego.nombre;
   inputGenero.value = juego.genero;
+  inputPlataforma.value = juego.plataforma ?? "";
+  inputAnio.value = juego.anio ?? "";
+  inputPuntuacion.value = juego.puntuacion ?? "";
   btnGuardar.textContent = "Guardar cambios";
   tituloForm.textContent = "Editar videojuego";
   btnCancelar.hidden = false;
   mostrarMensaje("", "");
   document.getElementById("agregar").scrollIntoView({ behavior: "smooth" });
   inputNombre.focus();
+}
+
+function crearLinea(texto) {
+  const linea = document.createElement("p");
+  linea.textContent = texto;
+  return linea;
 }
 
 async function cargarJuegos() {
@@ -54,9 +66,11 @@ async function cargarJuegos() {
 
       const titulo = document.createElement("h3");
       titulo.textContent = juego.nombre;
+      tarjeta.append(titulo, crearLinea("Género: " + juego.genero));
 
-      const genero = document.createElement("p");
-      genero.textContent = "Género: " + juego.genero;
+      if (juego.plataforma) tarjeta.append(crearLinea("Plataforma: " + juego.plataforma));
+      if (juego.anio) tarjeta.append(crearLinea("Año: " + juego.anio));
+      if (juego.puntuacion) tarjeta.append(crearLinea("Puntuación: ⭐ " + juego.puntuacion + "/10"));
 
       const acciones = document.createElement("div");
       acciones.className = "acciones";
@@ -72,7 +86,7 @@ async function cargarJuegos() {
       botonEliminar.addEventListener("click", () => eliminarJuego(juego.id));
 
       acciones.append(botonEditar, botonEliminar);
-      tarjeta.append(titulo, genero, acciones);
+      tarjeta.append(acciones);
       lista.appendChild(tarjeta);
     });
   } catch (error) {
@@ -86,7 +100,10 @@ formulario.addEventListener("submit", async (evento) => {
 
   const datos = {
     nombre: inputNombre.value.trim(),
-    genero: inputGenero.value.trim()
+    genero: inputGenero.value.trim(),
+    plataforma: inputPlataforma.value.trim() || null,
+    anio: inputAnio.value ? Number(inputAnio.value) : null,
+    puntuacion: inputPuntuacion.value ? Number(inputPuntuacion.value) : null
   };
 
   const editando = editandoId !== null;

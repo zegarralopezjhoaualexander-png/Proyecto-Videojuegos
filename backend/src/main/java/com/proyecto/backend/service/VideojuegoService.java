@@ -33,6 +33,9 @@ public class VideojuegoService {
         return repositorio.findById(id).map(juego -> {
             juego.setNombre(datos.getNombre());
             juego.setGenero(datos.getGenero());
+            juego.setPlataforma(datos.getPlataforma());
+            juego.setAnio(datos.getAnio());
+            juego.setPuntuacion(datos.getPuntuacion());
             return repositorio.save(juego);
         });
     }
