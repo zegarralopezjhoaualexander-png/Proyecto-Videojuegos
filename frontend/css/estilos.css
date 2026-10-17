@@ -69,16 +69,23 @@ button:hover { opacity: 0.85; }
   transition: transform 0.2s;
 }
 .tarjeta:hover { transform: translateY(-5px); }
+.acciones {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.tarjeta button.editar {
+  background: #ffd166;
+  color: #1b1b2f;
+}
 
 .tarjeta button.eliminar {
-  margin-top: 1rem;
   background: #ff6b6b;
   color: #fff;
 }
 
-footer {
-  text-align: center;
-  padding: 1.5rem;
-  background: #1b1b2f;
-  margin-top: 2rem;
+button.cancelar {
+  background: #555577;
+  color: #fff;
 }

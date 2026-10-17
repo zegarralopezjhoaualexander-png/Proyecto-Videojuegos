@@ -18,11 +18,12 @@
 
   <main>
     <section id="agregar">
-      <h2>Agregar videojuego</h2>
+      <h2 id="tituloForm">Agregar videojuego</h2>
       <form id="formJuego">
         <input type="text" id="nombre" placeholder="Nombre del juego" required>
         <input type="text" id="genero" placeholder="Género" required>
-        <button type="submit">Agregar</button>
+        <button type="submit" id="btnGuardar">Agregar</button>
+        <button type="button" id="btnCancelar" class="cancelar" hidden>Cancelar</button>
       </form>
       <p id="mensaje"></p>
     </section>
