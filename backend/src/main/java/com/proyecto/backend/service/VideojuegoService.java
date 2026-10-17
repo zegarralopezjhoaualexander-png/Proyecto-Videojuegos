@@ -1,51 +1,47 @@
 package com.proyecto.backend.service;
 
 import com.proyecto.backend.model.Videojuego;
+import com.proyecto.backend.repository.VideojuegoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class VideojuegoService {
 
-    private final List<Videojuego> juegos = new CopyOnWriteArrayList<>();
-    private final AtomicInteger contador = new AtomicInteger(3);
+    private final VideojuegoRepository repositorio;
 
-    public VideojuegoService() {
-        juegos.add(new Videojuego(1, "The Legend of Zelda", "Aventura"));
-        juegos.add(new Videojuego(2, "Minecraft", "Sandbox"));
-        juegos.add(new Videojuego(3, "FIFA", "Deportes"));
+    public VideojuegoService(VideojuegoRepository repositorio) {
+        this.repositorio = repositorio;
     }
 
     public List<Videojuego> obtenerTodos() {
-        return juegos;
+        return repositorio.findAll();
     }
 
-    public Optional<Videojuego> obtenerPorId(int id) {
-        return juegos.stream().filter(j -> j.id() == id).findFirst();
+    public Optional<Videojuego> obtenerPorId(Long id) {
+        return repositorio.findById(id);
     }
 
     public Videojuego crear(Videojuego datos) {
-        Videojuego nuevo = new Videojuego(contador.incrementAndGet(), datos.nombre(), datos.genero());
-        juegos.add(nuevo);
-        return nuevo;
+        datos.setId(null);
+        return repositorio.save(datos);
     }
 
-    public Optional<Videojuego> actualizar(int id, Videojuego datos) {
-        for (int i = 0; i < juegos.size(); i++) {
-            if (juegos.get(i).id() == id) {
-                Videojuego actualizado = new Videojuego(id, datos.nombre(), datos.genero());
-                juegos.set(i, actualizado);
-                return Optional.of(actualizado);
-            }
+    public Optional<Videojuego> actualizar(Long id, Videojuego datos) {
+        return repositorio.findById(id).map(juego -> {
+            juego.setNombre(datos.getNombre());
+            juego.setGenero(datos.getGenero());
+            return repositorio.save(juego);
+        });
+    }
+
+    public boolean eliminar(Long id) {
+        if (!repositorio.existsById(id)) {
+            return false;
         }
-        return Optional.empty();
-    }
-
-    public boolean eliminar(int id) {
-        return juegos.removeIf(j -> j.id() == id);
+        repositorio.deleteById(id);
+        return true;
     }
 }

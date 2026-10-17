@@ -25,7 +25,7 @@ public class VideojuegoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Videojuego> obtener(@PathVariable int id) {
+    public ResponseEntity<Videojuego> obtener(@PathVariable Long id) {
         return servicio.obtenerPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -37,14 +37,14 @@ public class VideojuegoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Videojuego> actualizar(@PathVariable int id, @RequestBody Videojuego datos) {
+    public ResponseEntity<Videojuego> actualizar(@PathVariable Long id, @RequestBody Videojuego datos) {
         return servicio.actualizar(id, datos)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable int id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         return servicio.eliminar(id)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
