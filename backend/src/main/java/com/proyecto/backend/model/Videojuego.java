@@ -1,5 +1,6 @@
 package com.proyecto.backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -35,6 +37,12 @@ public class Videojuego {
     @Max(value = 10, message = "La puntuación máxima es 10")
     private Integer puntuacion;
 
+    @Column(length = 500)
+    @Size(max = 500, message = "El enlace de la imagen no puede superar los 500 caracteres")
+    @Pattern(regexp = "^(https?://|img/).+",
+            message = "La imagen debe ser un enlace http(s) o una ruta que empiece por img/")
+    private String imagen;
+
     public Videojuego() {}
 
     public Videojuego(String nombre, String genero) {
@@ -54,4 +62,6 @@ public class Videojuego {
     public void setAnio(Integer anio) { this.anio = anio; }
     public Integer getPuntuacion() { return puntuacion; }
     public void setPuntuacion(Integer puntuacion) { this.puntuacion = puntuacion; }
+    public String getImagen() { return imagen; }
+    public void setImagen(String imagen) { this.imagen = imagen; }
 }

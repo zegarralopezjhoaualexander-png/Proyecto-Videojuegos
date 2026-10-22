@@ -9,6 +9,7 @@ const inputGenero = document.getElementById("genero");
 const inputPlataforma = document.getElementById("plataforma");
 const inputAnio = document.getElementById("anio");
 const inputPuntuacion = document.getElementById("puntuacion");
+const inputImagen = document.getElementById("imagen");
 const btnGuardar = document.getElementById("btnGuardar");
 const btnCancelar = document.getElementById("btnCancelar");
 const tituloForm = document.getElementById("tituloForm");
@@ -54,6 +55,7 @@ function iniciarEdicion(juego) {
   inputPlataforma.value = juego.plataforma ?? "";
   inputAnio.value = juego.anio ?? "";
   inputPuntuacion.value = juego.puntuacion ?? "";
+  inputImagen.value = juego.imagen ?? "";
   btnGuardar.textContent = "Guardar cambios";
   tituloForm.textContent = "Editar videojuego";
   btnCancelar.hidden = false;
@@ -106,6 +108,33 @@ function crearChip(texto) {
   return chip;
 }
 
+function crearImagen(juego) {
+  const contenedor = document.createElement("div");
+  contenedor.className = "imagen-juego";
+
+  const mostrarRelleno = () => {
+    contenedor.textContent = "🎮";
+  };
+
+  if (!juego.imagen) {
+    mostrarRelleno();
+    return contenedor;
+  }
+
+  const img = document.createElement("img");
+  img.alt = "Portada de " + juego.nombre;
+  img.loading = "lazy";
+  img.referrerPolicy = "no-referrer";
+  img.addEventListener("error", () => {
+    img.remove();
+    mostrarRelleno();
+  });
+  img.src = juego.imagen;
+  contenedor.append(img);
+
+  return contenedor;
+}
+
 function crearTarjeta(juego) {
   const tarjeta = document.createElement("article");
   tarjeta.className = "tarjeta";
@@ -134,7 +163,7 @@ function crearTarjeta(juego) {
     encabezado.append(nota);
   }
 
-  tarjeta.append(encabezado, etiqueta);
+  tarjeta.append(crearImagen(juego), encabezado, etiqueta);
 
   if (juego.plataforma || juego.anio) {
     const chips = document.createElement("div");
@@ -235,7 +264,8 @@ formulario.addEventListener("submit", async (evento) => {
     genero: inputGenero.value.trim(),
     plataforma: inputPlataforma.value.trim() || null,
     anio: inputAnio.value ? Number(inputAnio.value) : null,
-    puntuacion: inputPuntuacion.value ? Number(inputPuntuacion.value) : null
+    puntuacion: inputPuntuacion.value ? Number(inputPuntuacion.value) : null,
+    imagen: inputImagen.value.trim() || null
   };
 
   const editando = editandoId !== null;

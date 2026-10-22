@@ -36,6 +36,7 @@ public class VideojuegoService {
             juego.setPlataforma(datos.getPlataforma());
             juego.setAnio(datos.getAnio());
             juego.setPuntuacion(datos.getPuntuacion());
+            juego.setImagen(datos.getImagen());
             return repositorio.save(juego);
         });
     }
