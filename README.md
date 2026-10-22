@@ -1,6 +1,15 @@
 # 🎮 Proyecto Videojuegos
 
-Aplicación web para administrar un catálogo de videojuegos. Permite **ver, agregar, editar y eliminar** juegos, con datos como género, plataforma, año y puntuación, desde una página conectada a una API REST con base de datos.
+Aplicación web para administrar un catálogo de videojuegos. Permite **ver, agregar, editar y eliminar** juegos, con datos como género, plataforma, año, puntuación e imagen de portada, desde una página conectada a una API REST con base de datos.
+
+## Funciones
+
+- Agregar, editar y eliminar videojuegos.
+- Buscador por nombre o plataforma y filtro por género.
+- Estadísticas en la portada: total de juegos, géneros y puntuación media.
+- Portada de cada juego, con una imagen de relleno si no tiene o no se encuentra.
+- Validaciones en el servidor con mensajes claros que la página muestra en rojo.
+- Datos guardados en una base de datos que no se pierde al reiniciar.
 
 ## Tecnologías
 
@@ -25,7 +34,8 @@ Proyecto-Videojuegos/
 ├── frontend/    Página web
 │   ├── index.html
 │   ├── css/estilos.css
-│   └── js/main.js
+│   ├── js/main.js
+│   └── img/              Portadas de los juegos
 └── README.md
 ```
 
@@ -80,6 +90,7 @@ Ruta base: `http://localhost:8080/api/juegos`
 | `plataforma` | texto | No | Hasta 50 caracteres |
 | `anio` | número | No | Entre 1950 y 2100 |
 | `puntuacion` | número | No | Entre 1 y 10 |
+| `imagen` | texto | No | Enlace `http(s)://...` o ruta `img/archivo.jpg`, hasta 500 caracteres |
 
 Ejemplo de cuerpo para `POST` y `PUT`:
 
@@ -89,9 +100,20 @@ Ejemplo de cuerpo para `POST` y `PUT`:
   "genero": "Sandbox",
   "plataforma": "PC",
   "anio": 2011,
-  "puntuacion": 9
+  "puntuacion": 9,
+  "imagen": "img/minecraft.jpg"
 }
 ```
+
+## Imágenes
+
+Cada juego puede tener una portada:
+
+1. Guarda la imagen en `frontend/img/` con un nombre simple, en minúsculas y sin espacios (por ejemplo `zelda.jpg`).
+2. En la página pulsa **Editar** en el juego y escribe la ruta en el campo de imagen: `img/zelda.jpg`.
+3. También puedes usar un enlace de internet que empiece por `https://`.
+
+Si el juego no tiene imagen, o el archivo no se encuentra, la tarjeta muestra un 🎮 de relleno.
 
 ## Validaciones
 
@@ -109,4 +131,4 @@ Los datos se guardan en un archivo de H2 dentro de `backend/data/`, así que no 
 
 ## Autor
 
-Jhoau
+Tu Nombre
