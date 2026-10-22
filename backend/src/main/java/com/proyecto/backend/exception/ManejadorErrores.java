@@ -12,6 +12,11 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ManejadorErrores {
 
+    @ExceptionHandler(ErrorApi.class)
+    public ResponseEntity<Map<String, String>> manejarErrorApi(ErrorApi ex) {
+        return ResponseEntity.status(ex.getEstado()).body(Map.of("mensaje", ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> manejarValidacion(MethodArgumentNotValidException ex) {
         String detalle = ex.getBindingResult().getFieldErrors().stream()

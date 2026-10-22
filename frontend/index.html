@@ -13,6 +13,8 @@
     <nav>
       <a href="#agregar">Agregar</a>
       <a href="#juegos">Juegos</a>
+      <span id="usuarioActual"></span>
+      <button type="button" id="btnSalir" class="cancelar">Cerrar sesión</button>
     </nav>
   </header>
 
@@ -64,6 +66,19 @@
         <select id="filtroGenero" aria-label="Filtrar por género">
           <option value="">Todos los géneros</option>
         </select>
+        <select id="ordenar" aria-label="Ordenar por">
+          <option value="">Ordenar: orden de agregado</option>
+          <option value="reciente">Más recientes primero</option>
+          <option value="nombre">Nombre (A-Z)</option>
+          <option value="puntuacion-desc">Mayor puntuación</option>
+          <option value="puntuacion-asc">Menor puntuación</option>
+          <option value="anio-desc">Año: más nuevos</option>
+          <option value="anio-asc">Año: más antiguos</option>
+        </select>
+        <label class="casilla-favoritos">
+          <input type="checkbox" id="soloFavoritos">
+          ⭐ Solo favoritos
+        </label>
         <button type="button" id="btnLimpiar" class="cancelar">Limpiar</button>
       </div>
       <p id="contador"></p>

@@ -1,4 +1,9 @@
 const API = "http://localhost:8080/api/juegos";
+const API_AUTH = "http://localhost:8080/api/auth";
+
+if (!localStorage.getItem("token")) {
+  window.location.replace("login.html");
+}
 
 const lista = document.getElementById("listaJuegos");
 const formulario = document.getElementById("formJuego");
@@ -16,6 +21,8 @@ const tituloForm = document.getElementById("tituloForm");
 
 const buscador = document.getElementById("buscador");
 const filtroGenero = document.getElementById("filtroGenero");
+const selectOrden = document.getElementById("ordenar");
+const chkFavoritos = document.getElementById("soloFavoritos");
 const btnLimpiar = document.getElementById("btnLimpiar");
 const contador = document.getElementById("contador");
 
@@ -23,8 +30,40 @@ const statTotal = document.getElementById("statTotal");
 const statGeneros = document.getElementById("statGeneros");
 const statPromedio = document.getElementById("statPromedio");
 
+const usuarioActual = document.getElementById("usuarioActual");
+const btnSalir = document.getElementById("btnSalir");
+
 let editandoId = null;
 let todosLosJuegos = [];
+
+usuarioActual.textContent = "👤 " + (localStorage.getItem("usuario") || "");
+
+function cerrarSesionLocal() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("usuario");
+  window.location.replace("login.html");
+}
+
+async function fetchAuth(url, opciones = {}) {
+  const cabeceras = {
+    ...(opciones.headers || {}),
+    Authorization: "Bearer " + localStorage.getItem("token")
+  };
+  const respuesta = await fetch(url, { ...opciones, headers: cabeceras });
+  if (respuesta.status === 401) {
+    cerrarSesionLocal();
+  }
+  return respuesta;
+}
+
+btnSalir.addEventListener("click", async () => {
+  try {
+    await fetchAuth(API_AUTH + "/logout", { method: "POST" });
+  } catch (error) {
+    console.error(error);
+  }
+  cerrarSesionLocal();
+});
 
 function mostrarMensaje(texto, tipo) {
   mensaje.textContent = texto;
@@ -101,6 +140,39 @@ function actualizarGeneros() {
   filtroGenero.value = generos.has(seleccionado) ? seleccionado : "";
 }
 
+// Compara por un campo numérico; los juegos sin dato quedan siempre al final.
+function compararNumero(campo, direccion) {
+  return (a, b) => {
+    const x = a[campo];
+    const y = b[campo];
+    if (x == null && y == null) return 0;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return (x - y) * direccion;
+  };
+}
+
+function ordenarJuegos(juegos) {
+  const copia = [...juegos];
+
+  switch (selectOrden.value) {
+    case "reciente":
+      return copia.sort((a, b) => b.id - a.id);
+    case "nombre":
+      return copia.sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
+    case "puntuacion-desc":
+      return copia.sort(compararNumero("puntuacion", -1));
+    case "puntuacion-asc":
+      return copia.sort(compararNumero("puntuacion", 1));
+    case "anio-desc":
+      return copia.sort(compararNumero("anio", -1));
+    case "anio-asc":
+      return copia.sort(compararNumero("anio", 1));
+    default:
+      return copia;
+  }
+}
+
 function crearChip(texto) {
   const chip = document.createElement("span");
   chip.className = "chip";
@@ -174,7 +246,17 @@ function crearTarjeta(juego) {
   }
 
   const acciones = document.createElement("div");
-  acciones.className = "acciones";
+  acciones.className = "acciones acciones-tarjeta";
+
+  const esFavorito = juego.favorito === true;
+  const botonFav = document.createElement("button");
+  botonFav.type = "button";
+  botonFav.className = "fav" + (esFavorito ? " activo" : "");
+  botonFav.textContent = esFavorito ? "★" : "☆";
+  botonFav.title = esFavorito ? "Quitar de favoritos" : "Marcar como favorito";
+  botonFav.setAttribute("aria-label", botonFav.title);
+  botonFav.setAttribute("aria-pressed", String(esFavorito));
+  botonFav.addEventListener("click", () => alternarFavorito(juego.id));
 
   const botonEditar = document.createElement("button");
   botonEditar.className = "editar";
@@ -186,7 +268,7 @@ function crearTarjeta(juego) {
   botonEliminar.textContent = "Eliminar";
   botonEliminar.addEventListener("click", () => eliminarJuego(juego.id));
 
-  acciones.append(botonEditar, botonEliminar);
+  acciones.append(botonFav, botonEditar, botonEliminar);
   tarjeta.append(acciones);
 
   return tarjeta;
@@ -202,6 +284,7 @@ function mostrarVacio(texto) {
 function mostrarJuegos() {
   const texto = normalizar(buscador.value);
   const genero = filtroGenero.value;
+  const soloFavoritos = chkFavoritos.checked;
 
   const filtrados = todosLosJuegos.filter(juego => {
     const coincideTexto =
@@ -209,7 +292,8 @@ function mostrarJuegos() {
       normalizar(juego.nombre).includes(texto) ||
       normalizar(juego.plataforma).includes(texto);
     const coincideGenero = !genero || normalizar(juego.genero) === genero;
-    return coincideTexto && coincideGenero;
+    const coincideFavorito = !soloFavoritos || juego.favorito === true;
+    return coincideTexto && coincideGenero && coincideFavorito;
   });
 
   lista.innerHTML = "";
@@ -224,16 +308,23 @@ function mostrarJuegos() {
     "Mostrando " + filtrados.length + " de " + todosLosJuegos.length + " videojuegos";
 
   if (filtrados.length === 0) {
-    mostrarVacio("Ningún videojuego coincide con tu búsqueda.");
+    mostrarVacio(
+      soloFavoritos && !texto && !genero
+        ? "Todavía no tienes favoritos. Pulsa la estrella ☆ de un juego para marcarlo."
+        : "Ningún videojuego coincide con tu búsqueda."
+    );
     return;
   }
 
-  filtrados.forEach(juego => lista.appendChild(crearTarjeta(juego)));
+  ordenarJuegos(filtrados).forEach(juego => lista.appendChild(crearTarjeta(juego)));
 }
 
 async function cargarJuegos() {
   try {
-    const respuesta = await fetch(API);
+    const respuesta = await fetchAuth(API);
+    if (respuesta.status === 401) return;
+    if (!respuesta.ok) throw new Error("Error " + respuesta.status);
+
     todosLosJuegos = await respuesta.json();
 
     actualizarEstadisticas();
@@ -247,12 +338,31 @@ async function cargarJuegos() {
   }
 }
 
+async function alternarFavorito(id) {
+  try {
+    const respuesta = await fetchAuth(API + "/" + id + "/favorito", { method: "PUT" });
+    if (respuesta.status === 401) return;
+    if (!respuesta.ok) throw new Error("Error " + respuesta.status);
+
+    const actualizado = await respuesta.json();
+    todosLosJuegos = todosLosJuegos.map(j => (j.id === actualizado.id ? actualizado : j));
+    mostrarJuegos();
+  } catch (error) {
+    mostrarMensaje("No se pudo cambiar el favorito.", "error");
+    console.error(error);
+  }
+}
+
 buscador.addEventListener("input", mostrarJuegos);
 filtroGenero.addEventListener("change", mostrarJuegos);
+selectOrden.addEventListener("change", mostrarJuegos);
+chkFavoritos.addEventListener("change", mostrarJuegos);
 
 btnLimpiar.addEventListener("click", () => {
   buscador.value = "";
   filtroGenero.value = "";
+  selectOrden.value = "";
+  chkFavoritos.checked = false;
   mostrarJuegos();
 });
 
@@ -273,11 +383,13 @@ formulario.addEventListener("submit", async (evento) => {
   const metodo = editando ? "PUT" : "POST";
 
   try {
-    const respuesta = await fetch(url, {
+    const respuesta = await fetchAuth(url, {
       method: metodo,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos)
     });
+
+    if (respuesta.status === 401) return;
 
     if (!respuesta.ok) {
       let texto = "No se pudo guardar el videojuego.";
@@ -307,7 +419,8 @@ async function eliminarJuego(id) {
   if (!confirm("¿Seguro que quieres eliminar este videojuego?")) return;
 
   try {
-    const respuesta = await fetch(API + "/" + id, { method: "DELETE" });
+    const respuesta = await fetchAuth(API + "/" + id, { method: "DELETE" });
+    if (respuesta.status === 401) return;
     if (!respuesta.ok) throw new Error("Error " + respuesta.status);
 
     if (editandoId === id) salirDeEdicion();

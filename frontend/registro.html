@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear cuenta | Proyecto Videojuegos</title>
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="g-body">
+
+  <main class="g-tarjeta">
+    <p class="g-logo">🎮 <span>Proyecto Videojuegos</span></p>
+    <h1 id="tituloPaso">Crea tu cuenta</h1>
+    <p class="g-subtitulo" id="subtituloPaso">Escribe tu nombre</p>
+    <p class="g-progreso" id="indicadorPaso">Paso 1 de 3</p>
+
+    <form id="formRegistro" novalidate>
+
+      <!-- Paso 1 -->
+      <div class="paso">
+        <div class="g-campo" id="campo-nombre">
+          <input type="text" id="nombre" placeholder=" " autocomplete="given-name" maxlength="50">
+          <label for="nombre">Nombre</label>
+        </div>
+        <p class="g-error-campo" id="error-nombre"></p>
+
+        <div class="g-campo" id="campo-apellido">
+          <input type="text" id="apellido" placeholder=" " autocomplete="family-name" maxlength="50">
+          <label for="apellido">Apellido</label>
+        </div>
+        <p class="g-error-campo" id="error-apellido"></p>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="paso" hidden>
+        <div class="g-campo" id="campo-fechaNacimiento">
+          <input type="date" id="fechaNacimiento" class="fijo" autocomplete="bday">
+          <label for="fechaNacimiento">Fecha de nacimiento</label>
+        </div>
+        <p class="g-error-campo" id="error-fechaNacimiento"></p>
+
+        <div class="g-campo" id="campo-correo">
+          <input type="email" id="correo" placeholder=" " autocomplete="email" maxlength="254">
+          <label for="correo">Correo electrónico</label>
+        </div>
+        <p class="g-error-campo" id="error-correo"></p>
+        <p class="g-ayuda">Lo usarás para iniciar sesión.</p>
+      </div>
+
+      <!-- Paso 3 -->
+      <div class="paso" hidden>
+        <div class="g-campo" id="campo-contrasena">
+          <input type="password" id="contrasena" placeholder=" " autocomplete="new-password" maxlength="72">
+          <label for="contrasena">Contraseña</label>
+        </div>
+        <p class="g-error-campo" id="error-contrasena"></p>
+
+        <div class="g-medidor"><div id="barraFuerza" data-nivel="0"></div></div>
+        <p id="textoFuerza"></p>
+
+        <ul class="g-requisitos">
+          <li id="req-longitud">12 caracteres como mínimo</li>
+          <li id="req-mayuscula">Una letra mayúscula</li>
+          <li id="req-minuscula">Una letra minúscula</li>
+          <li id="req-numero">Un número</li>
+          <li id="req-simbolo">Un símbolo (por ejemplo ! ? # $ %)</li>
+        </ul>
+
+        <div class="g-campo" id="campo-confirmacion">
+          <input type="password" id="confirmacion" placeholder=" " autocomplete="new-password" maxlength="72">
+          <label for="confirmacion">Confirmar contraseña</label>
+        </div>
+        <p class="g-error-campo" id="error-confirmacion"></p>
+
+        <label class="g-mostrar">
+          <input type="checkbox" id="mostrar">
+          Mostrar contraseña
+        </label>
+      </div>
+
+      <p class="g-error-general" id="errorGeneral" role="alert"></p>
+
+      <div class="g-acciones">
+        <a href="login.html" class="g-enlace" id="enlaceLogin">Iniciar sesión</a>
+        <button type="button" class="g-enlace" id="btnAtras" hidden>Atrás</button>
+        <button type="submit" class="g-boton" id="btnSiguiente">Siguiente</button>
+      </div>
+    </form>
+  </main>
+
+  <p class="g-pie">&copy; 2026 Proyecto Videojuegos</p>
+
+  <script src="js/registro.js"></script>
+</body>
+</html>

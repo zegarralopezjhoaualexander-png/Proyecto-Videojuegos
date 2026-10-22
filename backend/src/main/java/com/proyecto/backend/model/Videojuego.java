@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -43,12 +44,24 @@ public class Videojuego {
             message = "La imagen debe ser un enlace http(s) o una ruta que empiece por img/")
     private String imagen;
 
+    // Boolean (y no boolean) para que los juegos ya guardados queden en null
+    // y la base de datos se actualice sin errores. null se trata como "no favorito".
+    private Boolean favorito;
+
+    @ManyToOne
+    private Usuario usuario;
+
     public Videojuego() {}
 
     public Videojuego(String nombre, String genero) {
         this.nombre = nombre;
         this.genero = genero;
     }
+
+    // Estos dos métodos no se llaman get/set a propósito:
+    // así el dueño nunca se envía ni se recibe por JSON.
+    public Usuario propietario() { return usuario; }
+    public void asignarPropietario(Usuario usuario) { this.usuario = usuario; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -64,4 +77,6 @@ public class Videojuego {
     public void setPuntuacion(Integer puntuacion) { this.puntuacion = puntuacion; }
     public String getImagen() { return imagen; }
     public void setImagen(String imagen) { this.imagen = imagen; }
+    public Boolean getFavorito() { return favorito; }
+    public void setFavorito(Boolean favorito) { this.favorito = favorito; }
 }
