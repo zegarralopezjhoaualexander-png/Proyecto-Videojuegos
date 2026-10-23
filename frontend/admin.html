@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de administrador | Tienda de Videojuegos</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="cabecera">
+    <a href="index.html" class="logo">🎮 <span>Tienda de Videojuegos</span></a>
+    <nav>
+      <a href="index.html">← Ver tienda</a>
+      <span id="usuarioActual"></span>
+      <button type="button" id="btnSalir" class="cancelar">Cerrar sesión</button>
+    </nav>
+  </header>
+
+  <main id="contenido" hidden>
+    <section class="seccion">
+      <div class="panel" id="panelFormulario">
+        <h2 id="tituloForm">Agregar juego</h2>
+        <form id="formJuego">
+          <input type="text" id="nombre" placeholder="Nombre del juego" aria-label="Nombre" required>
+          <input type="text" id="genero" list="categorias" placeholder="Categoría (Acción, RPG...)" aria-label="Categoría" required>
+          <datalist id="categorias"></datalist>
+          <input type="text" id="plataforma" placeholder="Plataforma (PC, PlayStation 5...)" aria-label="Plataforma">
+          <input type="number" id="anio" placeholder="Año" aria-label="Año" min="1950" max="2100">
+          <input type="number" id="precio" placeholder="Precio (por ejemplo 59.99)" aria-label="Precio" min="0" max="9999.99" step="0.01" required>
+          <input type="number" id="stock" placeholder="Stock (unidades)" aria-label="Stock" min="0" max="100000" step="1" required>
+          <input type="number" id="puntuacion" placeholder="Puntuación 1-10 (opcional)" aria-label="Puntuación" min="1" max="10">
+          <input type="text" id="imagen" class="campo-ancho" placeholder="Imagen (opcional): https://... o img/archivo.jpg" aria-label="Imagen">
+          <textarea id="descripcion" placeholder="Descripción (opcional)" aria-label="Descripción" maxlength="1000"></textarea>
+          <div class="botones-form">
+            <button type="submit" id="btnGuardar" class="primario">Agregar</button>
+            <button type="button" id="btnCancelar" class="cancelar" hidden>Cancelar</button>
+          </div>
+        </form>
+        <p id="mensaje"></p>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <h2 class="titulo-seccion">Juegos de la tienda</h2>
+      <div class="filtros">
+        <input type="search" id="buscador" placeholder="🔍 Buscar por nombre o categoría" aria-label="Buscar">
+      </div>
+      <p id="contador"></p>
+
+      <div class="tabla-envoltorio">
+        <table class="tabla-admin">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Plataforma</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTabla"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

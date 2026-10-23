@@ -34,6 +34,11 @@ public class AutenticacionInterceptor implements HandlerInterceptor {
                 .orElseThrow(() -> new ErrorApi(HttpStatus.UNAUTHORIZED,
                         "Tu sesión expiró. Inicia sesión de nuevo"));
 
+        // Todo lo que cuelga de /api/admin es solo para administradores.
+        if (request.getRequestURI().startsWith("/api/admin") && !usuario.esAdmin()) {
+            throw new ErrorApi(HttpStatus.FORBIDDEN, "No tienes permiso para hacer esto");
+        }
+
         request.setAttribute("usuario", usuario);
         request.setAttribute("token", token);
         return true;

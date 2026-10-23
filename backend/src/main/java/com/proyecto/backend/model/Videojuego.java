@@ -5,12 +5,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import java.math.BigDecimal;
 
 @Entity
 public class Videojuego {
@@ -23,8 +28,9 @@ public class Videojuego {
     @Size(max = 100, message = "El nombre no puede superar los 100 caracteres")
     private String nombre;
 
-    @NotBlank(message = "El género es obligatorio")
-    @Size(max = 50, message = "El género no puede superar los 50 caracteres")
+    // La categoría de la tienda (Acción, RPG, Deportes...).
+    @NotBlank(message = "La categoría es obligatoria")
+    @Size(max = 50, message = "La categoría no puede superar los 50 caracteres")
     private String genero;
 
     @Size(max = 50, message = "La plataforma no puede superar los 50 caracteres")
@@ -44,24 +50,23 @@ public class Videojuego {
             message = "La imagen debe ser un enlace http(s) o una ruta que empiece por img/")
     private String imagen;
 
-    // Boolean (y no boolean) para que los juegos ya guardados queden en null
-    // y la base de datos se actualice sin errores. null se trata como "no favorito".
-    private Boolean favorito;
+    @Column(length = 1000)
+    @Size(max = 1000, message = "La descripción no puede superar los 1000 caracteres")
+    private String descripcion;
 
-    @ManyToOne
-    private Usuario usuario;
+    @NotNull(message = "El precio es obligatorio")
+    @DecimalMin(value = "0.00", message = "El precio no puede ser negativo")
+    @DecimalMax(value = "9999.99", message = "El precio no puede superar 9999.99")
+    @Digits(integer = 4, fraction = 2, message = "El precio admite como máximo 2 decimales")
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precio;
+
+    @NotNull(message = "El stock es obligatorio")
+    @Min(value = 0, message = "El stock no puede ser negativo")
+    @Max(value = 100000, message = "El stock no puede superar 100000")
+    private Integer stock;
 
     public Videojuego() {}
-
-    public Videojuego(String nombre, String genero) {
-        this.nombre = nombre;
-        this.genero = genero;
-    }
-
-    // Estos dos métodos no se llaman get/set a propósito:
-    // así el dueño nunca se envía ni se recibe por JSON.
-    public Usuario propietario() { return usuario; }
-    public void asignarPropietario(Usuario usuario) { this.usuario = usuario; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -77,6 +82,10 @@ public class Videojuego {
     public void setPuntuacion(Integer puntuacion) { this.puntuacion = puntuacion; }
     public String getImagen() { return imagen; }
     public void setImagen(String imagen) { this.imagen = imagen; }
-    public Boolean getFavorito() { return favorito; }
-    public void setFavorito(Boolean favorito) { this.favorito = favorito; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public BigDecimal getPrecio() { return precio; }
+    public void setPrecio(BigDecimal precio) { this.precio = precio; }
+    public Integer getStock() { return stock; }
+    public void setStock(Integer stock) { this.stock = stock; }
 }

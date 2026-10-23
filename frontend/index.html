@@ -3,81 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proyecto Videojuegos</title>
+  <title>Tienda de Videojuegos</title>
   <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
 
   <header class="cabecera">
-    <a href="#inicio" class="logo">🎮 <span>Proyecto Videojuegos</span></a>
+    <a href="#inicio" class="logo">🎮 <span>Tienda de Videojuegos</span></a>
     <nav>
-      <a href="#agregar">Agregar</a>
-      <a href="#juegos">Juegos</a>
-      <span id="usuarioActual"></span>
-      <button type="button" id="btnSalir" class="cancelar">Cerrar sesión</button>
+      <a href="#catalogo">Catálogo</a>
+      <a href="admin.html" id="enlaceAdmin" hidden>Panel admin</a>
+      <a href="login.html" id="enlaceLogin" hidden>Iniciar sesión</a>
+      <span id="usuarioActual" hidden></span>
+      <button type="button" id="btnSalir" class="cancelar" hidden>Cerrar sesión</button>
+      <button type="button" id="btnCarrito" class="boton-carrito" aria-label="Abrir carrito">
+        🛒 Carrito <span id="contadorCarrito">0</span>
+      </button>
     </nav>
   </header>
 
   <main>
     <section class="portada" id="inicio">
-      <h2>Tu colección de <span class="resalte">videojuegos</span></h2>
-      <p>Agrega, busca y organiza todos tus juegos en un solo lugar.</p>
+      <h2>Los mejores <span class="resalte">videojuegos</span> en un solo lugar</h2>
+      <p>Explora el catálogo por categoría, plataforma y precio.</p>
 
       <div class="estadisticas">
         <div class="estadistica">
-          <strong id="statTotal">0</strong>
+          <strong id="statJuegos">0</strong>
           <span>Juegos</span>
         </div>
         <div class="estadistica">
-          <strong id="statGeneros">0</strong>
-          <span>Géneros</span>
+          <strong id="statCategorias">0</strong>
+          <span>Categorías</span>
         </div>
         <div class="estadistica">
-          <strong id="statPromedio">—</strong>
-          <span>Puntuación media</span>
+          <strong id="statPlataformas">0</strong>
+          <span>Plataformas</span>
         </div>
       </div>
     </section>
 
-    <section id="agregar" class="seccion">
-      <div class="panel" id="panelFormulario">
-        <h2 id="tituloForm">Agregar videojuego</h2>
-        <form id="formJuego">
-          <input type="text" id="nombre" placeholder="Nombre del juego" aria-label="Nombre del juego" required>
-          <input type="text" id="genero" placeholder="Género" aria-label="Género" required>
-          <input type="text" id="plataforma" placeholder="Plataforma (opcional)" aria-label="Plataforma">
-          <input type="number" id="anio" placeholder="Año (opcional)" aria-label="Año" min="1950" max="2100">
-          <input type="number" id="puntuacion" placeholder="Puntuación 1-10 (opcional)" aria-label="Puntuación" min="1" max="10">
-          <input type="text" id="imagen" class="campo-ancho" placeholder="Imagen (opcional): enlace https://... o img/archivo.jpg" aria-label="Imagen">
-          <div class="botones-form">
-            <button type="submit" id="btnGuardar" class="primario">Agregar</button>
-            <button type="button" id="btnCancelar" class="cancelar" hidden>Cancelar</button>
-          </div>
-        </form>
-        <p id="mensaje"></p>
-      </div>
-    </section>
-
-    <section id="juegos" class="seccion">
-      <h2 class="titulo-seccion">Mis videojuegos</h2>
+    <section id="catalogo" class="seccion">
+      <h2 class="titulo-seccion">Catálogo</h2>
 
       <div class="filtros">
-        <input type="search" id="buscador" placeholder="🔍 Buscar por nombre o plataforma" aria-label="Buscar">
-        <select id="filtroGenero" aria-label="Filtrar por género">
-          <option value="">Todos los géneros</option>
+        <input type="search" id="buscador" placeholder="🔍 Buscar por nombre, categoría o plataforma" aria-label="Buscar">
+        <select id="filtroCategoria" aria-label="Filtrar por categoría">
+          <option value="">Todas las categorías</option>
+        </select>
+        <select id="filtroPlataforma" aria-label="Filtrar por plataforma">
+          <option value="">Todas las plataformas</option>
         </select>
         <select id="ordenar" aria-label="Ordenar por">
-          <option value="">Ordenar: orden de agregado</option>
-          <option value="reciente">Más recientes primero</option>
+          <option value="">Ordenar: destacados</option>
+          <option value="precio-asc">Precio: menor a mayor</option>
+          <option value="precio-desc">Precio: mayor a menor</option>
           <option value="nombre">Nombre (A-Z)</option>
-          <option value="puntuacion-desc">Mayor puntuación</option>
-          <option value="puntuacion-asc">Menor puntuación</option>
-          <option value="anio-desc">Año: más nuevos</option>
-          <option value="anio-asc">Año: más antiguos</option>
+          <option value="puntuacion-desc">Mejor puntuados</option>
+          <option value="anio-desc">Más nuevos</option>
+          <option value="reciente">Agregados recientemente</option>
         </select>
         <label class="casilla-favoritos">
-          <input type="checkbox" id="soloFavoritos">
-          ⭐ Solo favoritos
+          <input type="checkbox" id="soloStock">
+          Solo disponibles
         </label>
         <button type="button" id="btnLimpiar" class="cancelar">Limpiar</button>
       </div>
@@ -88,9 +76,29 @@
   </main>
 
   <footer>
-    <p>&copy; 2026 Proyecto Videojuegos</p>
+    <p>&copy; 2026 Tienda de Videojuegos</p>
   </footer>
 
-  <script src="js/main.js"></script>
+  <div id="fondoCarrito" class="fondo-carrito" hidden></div>
+  <aside id="panelCarrito" class="panel-carrito" aria-label="Carrito de compras" hidden>
+    <div class="carrito-cabecera">
+      <h2>🛒 Tu carrito</h2>
+      <button type="button" id="btnCerrarCarrito" class="cancelar" aria-label="Cerrar carrito">✕</button>
+    </div>
+
+    <div id="itemsCarrito" class="carrito-items"></div>
+
+    <div class="carrito-pie">
+      <div class="carrito-total">
+        <span>Total</span>
+        <strong id="totalCarrito">$0.00</strong>
+      </div>
+      <button type="button" id="btnFinalizar" class="primario">Finalizar compra</button>
+      <button type="button" id="btnVaciar" class="cancelar">Vaciar carrito</button>
+      <p id="avisoCarrito" role="status"></p>
+    </div>
+  </aside>
+
+  <script src="js/tienda.js"></script>
 </body>
 </html>

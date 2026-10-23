@@ -40,6 +40,8 @@ public class AuthController {
 
     @GetMapping("/yo")
     public Map<String, String> yo(@RequestAttribute("usuario") Usuario usuario) {
-        return Map.of("nombre", usuario.nombreCompleto());
+        return Map.of(
+                "nombre", usuario.nombreCompleto(),
+                "rol", usuario.nombreRol());
     }
 }

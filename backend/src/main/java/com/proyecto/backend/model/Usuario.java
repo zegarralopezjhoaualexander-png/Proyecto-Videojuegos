@@ -17,7 +17,7 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Identificador interno heredado de la versión anterior.
+    // Identificador interno heredado de versiones anteriores.
     @Column(nullable = false, unique = true, length = 30)
     private String nombreUsuario;
 
@@ -34,6 +34,10 @@ public class Usuario {
     private String correo;
 
     private LocalDate fechaNacimiento;
+
+    // "ADMIN" o vacío (cliente). Es nullable para que las cuentas viejas sigan funcionando.
+    @Column(length = 20)
+    private String rol;
 
     public Usuario() {}
 
@@ -54,6 +58,10 @@ public class Usuario {
     public String getApellido() { return apellido; }
     public String getCorreo() { return correo; }
     public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+
+    public boolean esAdmin() { return "ADMIN".equals(rol); }
+    public void asignarRol(String rol) { this.rol = rol; }
+    public String nombreRol() { return esAdmin() ? "ADMIN" : "CLIENTE"; }
 
     public String nombreCompleto() {
         if (nombre == null || nombre.isBlank()) {

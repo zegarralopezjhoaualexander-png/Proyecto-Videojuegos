@@ -16,8 +16,9 @@ public class ConfigWeb implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registro) {
+        // El catálogo (/api/tienda/**) es público; lo demás pide sesión.
         registro.addInterceptor(interceptor)
-                .addPathPatterns("/api/juegos", "/api/juegos/**", "/api/auth/logout", "/api/auth/yo");
+                .addPathPatterns("/api/admin/**", "/api/auth/logout", "/api/auth/yo");
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.proyecto.backend.model.Sesion;
 import com.proyecto.backend.model.Usuario;
 import com.proyecto.backend.repository.SesionRepository;
 import com.proyecto.backend.repository.UsuarioRepository;
-import com.proyecto.backend.repository.VideojuegoRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,13 +36,15 @@ public class AuthService {
 
     private final UsuarioRepository usuarios;
     private final SesionRepository sesiones;
-    private final VideojuegoRepository juegos;
+    private final String correoAdmin;
     private final BCryptPasswordEncoder cifrador = new BCryptPasswordEncoder();
 
-    public AuthService(UsuarioRepository usuarios, SesionRepository sesiones, VideojuegoRepository juegos) {
+    public AuthService(UsuarioRepository usuarios,
+                       SesionRepository sesiones,
+                       @Value("${tienda.admin.correo:}") String correoAdmin) {
         this.usuarios = usuarios;
         this.sesiones = sesiones;
-        this.juegos = juegos;
+        this.correoAdmin = correoAdmin.trim().toLowerCase(Locale.ROOT);
     }
 
     @Transactional
@@ -60,7 +62,6 @@ public class AuthService {
             throw new ErrorApi(HttpStatus.CONFLICT, "Ya existe una cuenta con ese correo electrónico");
         }
 
-        boolean esElPrimero = usuarios.count() == 0;
         Usuario nuevo = usuarios.save(new Usuario(
                 generarNombreInterno(),
                 cifrador.encode(datos.contrasena()),
@@ -69,13 +70,7 @@ public class AuthService {
                 correo,
                 datos.fechaNacimiento()));
 
-        if (esElPrimero) {
-            // El primer usuario se queda con los juegos que ya existían sin dueño.
-            var huerfanos = juegos.findByUsuarioIsNull();
-            huerfanos.forEach(juego -> juego.asignarPropietario(nuevo));
-            juegos.saveAll(huerfanos);
-        }
-
+        aplicarRol(nuevo);
         return crearSesion(nuevo);
     }
 
@@ -90,6 +85,7 @@ public class AuthService {
                 .orElseThrow(() -> new ErrorApi(HttpStatus.UNAUTHORIZED,
                         "Correo o contraseña incorrectos"));
 
+        aplicarRol(usuario);
         return crearSesion(usuario);
     }
 
@@ -109,6 +105,16 @@ public class AuthService {
     @Transactional
     public void cerrarSesion(String token) {
         sesiones.deleteByToken(token);
+    }
+
+    // La cuenta cuyo correo coincide con tienda.admin.correo pasa a ser administradora.
+    private void aplicarRol(Usuario usuario) {
+        if (!correoAdmin.isEmpty()
+                && correoAdmin.equals(usuario.getCorreo())
+                && !usuario.esAdmin()) {
+            usuario.asignarRol("ADMIN");
+            usuarios.save(usuario);
+        }
     }
 
     private void validarEdad(LocalDate nacimiento) {
@@ -137,7 +143,7 @@ public class AuthService {
     private RespuestaAuthDTO crearSesion(Usuario usuario) {
         String token = generarToken();
         sesiones.save(new Sesion(token, usuario, Instant.now().plus(DURACION_SESION)));
-        return new RespuestaAuthDTO(token, usuario.nombreCompleto());
+        return new RespuestaAuthDTO(token, usuario.nombreCompleto(), usuario.nombreRol());
     }
 
     private String generarToken() {
